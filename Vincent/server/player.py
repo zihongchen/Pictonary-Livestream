@@ -1,6 +1,7 @@
 
 class Player(object):
-    def __init__(self, ip, name):
+    def __init__(self, connSocket, ip, name):
+        self.connSocket = connSocket
         self.ip = ip
         self.name = name
         self.score = 0
@@ -9,10 +10,12 @@ class Player(object):
 
     def update_score(self, x):
         self.score += x
-    def guess(self, string):
-        pass
+
+    def guess(self, wrd):
+        return self.game.player_guess(self, wrd)
+
     def disconnect(self):
-        pass
+        self.game.player_disconnected(self)
 
 
 
@@ -29,4 +32,4 @@ class Player(object):
 
     def assign_game(self,game_id):
         self.game_id = game_id
-        return Nones
+        return None
