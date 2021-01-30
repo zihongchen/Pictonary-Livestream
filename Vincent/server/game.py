@@ -4,10 +4,10 @@ connect players, rounds, chat, board
 """
 
 
-from .player import Player
-from .board import Board
-from .round import Round
-from .chat import Chat
+from player import Player
+from board import Board
+from round import Round
+from chat import Chat
 import random
 class Game(object):
     def __init__(self, id, players):
@@ -45,7 +45,9 @@ class Game(object):
     def player_disconnected(self,player):
         if player in self.players:
             self.players.remove(player)
-            # todo
+
+            # TODO
+            #REVIEW
             # deal with player_idx
 
         else:
