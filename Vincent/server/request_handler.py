@@ -6,7 +6,7 @@ from .player import Player
 from .game import Game
 from queue import Queue
 
-def player_thread(ip, name):
+def player_thread(connectionSocket,ip, name):
     pass
     
 
@@ -24,21 +24,19 @@ def authentication(connectionSocket, ip):
         connectionSocket.sendall(str(e).encode())
         connectionSocket.close()# close the connection
     
-    player_thread(ip, "")
+    player_thread(connectionSocket,ip, "")
 
 def connection_thread():
     server = ""
     port = 2333
-
- try:
+    localHost = socket.gethostbyname()
+    try:
          #create an INET, STREAMing socket
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #print ('Socket sucreated')
     except socket.error as err:
-        print (f"ocket creation failed with error {err}")
-        
-
-    localHost = socket.gethostbyname()
+        print (f"socket creation failed with error {err}")
+           
     try:
         s.bind((server, port))
     except socket.error as e:
@@ -57,4 +55,4 @@ def connection_thread():
 
 
 if __name__ == "__main__":
-    connection_thread()
+    threading.Thread(target= connection_thread)
