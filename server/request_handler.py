@@ -33,7 +33,7 @@ class Server(object):
                     data = json.loads(data.decode())
                 except Exception as e:
                     break
-
+                # transforming JSON object into a dictionary
                 keys = [int(key) for key in data.keys()]
                 send_msg = {key:[] for key in keys}
                 last_board = None

@@ -18,7 +18,7 @@ class Round(object):
         self.time_lock = threading.Lock()
         self.time = self.ROUND_TIME
         threading.Thread(target= self.time_thread)
-
+        #start_new_thread
         
 
     def time_thread(self):
@@ -27,16 +27,19 @@ class Round(object):
         """
         while(True):
             time.sleep(1)
-            self.time_lock.acquire()
+            #self.time_lock.acquire()
             self.time -= 1
-            self.time_lock.release()
-            if self.time == 0:
-                self.end_game("Time is up")
+            #self.time_lock.release()
+            if self.time < 0:
+                self.end_round("Time is up")
                 return None
 
 
     
     def guess(self, player, wrd):
+        # we want to write a notification to user
+        if player == self.player_drawing:
+            return None
 
         if (wrd == self.word):
             if player not in self.player_guessed:
@@ -58,13 +61,29 @@ class Round(object):
             self.player_guessed.remove(player_gone)
         
         if player_gone == self.player_drawing:
-            self.end_game("Drawing players leaves")
+            self.end_round("Drawing players leaves")
 
         if len(self.player_scores) < 2:
-            self.end_game("Not enough players")
+            self.end_round("Not enough players")
 
 
-    def end_game(self, msg):
+    def end_round(self, msg):
         self.end = True
         pass
-        
+    
+    def skip(self):
+        pass
+
+
+
+    def get_all_scores(self):
+        return self.player_scores
+    
+    def get_a_score(self, player):
+        if player in self.player_scores:
+            return self.player_scores[player]
+        else: 
+            raise Exception("player not in this round")
+
+
+
