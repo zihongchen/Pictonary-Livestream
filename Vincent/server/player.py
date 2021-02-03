@@ -16,6 +16,7 @@ class Player(object):
 
     def disconnect(self):
         self.game.player_disconnected(self)
+        self.connSocket.close()
 
 
 
@@ -30,6 +31,7 @@ class Player(object):
     def get_ip(self):
         return self.ip
 
-    def assign_game(self,game_id):
+    def set_game(self,game, game_id):
         self.game_id = game_id
+        self.game = game
         return None
