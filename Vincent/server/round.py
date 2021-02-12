@@ -1,5 +1,5 @@
 
-from chat import Chat
+from .chat import *
 
 import time
 import threading
@@ -38,7 +38,7 @@ class Round(object):
         # we want to write a notification to user
         
         if player == self.player_drawing:
-            return "The drawing player can not guess"
+            return None
 
         if (wrd == self.word):
             if player not in self.player_guessed:
@@ -46,6 +46,8 @@ class Round(object):
                 # TODO score system
                 self.player.update_score((self.time/Round.ROUND_TIME)*20)
                 return player.name+ "guessed correctly"
+            else:
+                return None
         else:
             return player.name+": "+ wrd
                 
