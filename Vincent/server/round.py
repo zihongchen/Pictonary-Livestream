@@ -1,5 +1,5 @@
 
-from .chat import *
+from chat import Chat
 
 import time
 import threading
@@ -11,11 +11,11 @@ class Round(object):
         self.end = False
         self.word = word
         self.player_drawing = player_drawing
-        self.player_guessed = []
+        self.player_guessed = set()
         self.skips = 0
         self.player_scores = { player : 0 for player in all_players}
         self.chat = Chat()        
-        self.time = self.ROUND_TIME
+        self.time = Round.ROUND_TIME
         threading.Timer( 1, self.time_thread)
         #start_new_thread
         
@@ -36,13 +36,18 @@ class Round(object):
     
     def guess(self, player, wrd):
         # we want to write a notification to user
+        
         if player == self.player_drawing:
-            return None
+            return "The drawing player can not guess"
 
         if (wrd == self.word):
             if player not in self.player_guessed:
-                self.player_guessed.append(player)
+                self.player_guessed.add(player)
                 # TODO score system
+                self.player.update_score((self.time/Round.ROUND_TIME)*20)
+                return player.name+ "guessed correctly"
+        else:
+            return player.name+": "+ wrd
                 
 
 

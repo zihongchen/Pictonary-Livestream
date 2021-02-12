@@ -4,22 +4,20 @@ connect players, rounds, chat, board
 """
 
 
-from .player import Player
-from .board import Board
-from .round import Round
-from .chat import Chat
+from player import Player
+from board import Board
+from round import Round
+from chat import Chat
 import random
 class Game(object):
     def __init__(self, id, players):
         self.id = id
         self.players = players
-        self.word_idx = 0
         self.drawer_idx = 0
         self.round = None
         self.board = None
         self.chat = None
         self.round = None
-        self.word_used = set()
 
 
       
@@ -33,20 +31,22 @@ class Game(object):
 
     def player_guess(self,player, guess_msg):
 
-        self.round.guess(player, guess_msg)
+        output_msg = self.round.guess(player, guess_msg)
         
-        if guess_msg != self.round.word:
+        if output_msg is not None:
             msg = player.name+": "+ guess_msg
             self.round.chat.update_chat(msg)
-        
 
+        
+    def get_ID(self):
+        return self.id
         
 
     def player_disconnected(self,player):
         if player in self.players:
             self.players.remove(player)
 
-            # TODO
+     
             #REVIEW
             # deal with player_idx
 
@@ -83,8 +83,7 @@ class Game(object):
     def start_new_round(self):
         self.board.clear()
         #FIXME
-        word = self.word_pool[self.word_idx]
-        self.word_idx += 1
+        word = self.word_pool.pop()
         player_drawing = self.players[self.drawer_idx]
         self.drawer_idx += 1
         if self.drawer_idx >= len(self.players):
@@ -119,16 +118,12 @@ class Game(object):
 
     def get_Words(self):
         # after shuffling, just pop from the end
-        words = []
+        self.word_pool = []
 
         with open("words.txt", 'r') as f:
             for line in f:
                 wrd = line.strip()
-                if wrd not in self.word_used:
-                    self.word_used.add(wrd)
+                self.word_pool.append(wrd)
+        random.shuffle(self.word_pool)
 
-                    words.append(wrd)
-#FIXME
-
-            return words[r].strip()
 

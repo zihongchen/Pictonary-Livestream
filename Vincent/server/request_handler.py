@@ -2,15 +2,16 @@ import socket
 # from _thread import *
 import threading 
 import time
-from .player import Player
-from .game import Game
+from typing import cast
+from player import Player
+from game import Game
 from queue import Queue
 import json
 PLAYERS = 8
 class Server(object):
     def __init__(self):    
         self.connection_queue = []
-        self.localHost = socket.gethostbyname()
+        self.ongoingGame = []#REVIEW
         self.gameId = 0
             
 
@@ -28,7 +29,7 @@ class Server(object):
 
     #     #     except Exception as e:
     #     #         print(f"[EXCEPTION] {player.get_name} disconnected", e)
-    def player_thread(self, conn, player):
+    def player_thread(self, conn, player):# each player has a disignegted player thread
         """
         handles in game communication between clients
         :param conn: connection object
@@ -66,6 +67,7 @@ class Server(object):
                             correct = player.game.player_guess(player, data['0'][0])
                             send_msg[0] = correct
                         elif key == 1:
+                            #TODO
                             skip = player.game.skip()
                             send_msg[1] = skip
                         elif key == 2:  # get chat
@@ -84,6 +86,7 @@ class Server(object):
                             word = player.game.round.word
                             send_msg[6] = word
                         elif key == 7:  # get skips
+                            #TODO
                             skips = player.game.round.skips
                             send_msg[7] = skips
                         elif key == 8:  # update board
@@ -116,7 +119,7 @@ class Server(object):
             game = Game(self.gameId, self.connection_queue)
             self.gameId += 1
             for player in self.connection_queue:
-                player.set_game(game, self.gameId)
+                player.set_game(game, game.get_ID())
 
             self.connection_queue = []
 
@@ -126,14 +129,18 @@ class Server(object):
 
 
     def authentication(self,connectionSocket, ip):
-        try:
+        try: 
             # TODO authentication process
-            data = connectionSocket.recv(16).decode()
+            data = json.loads(connectionSocket.recv(16).decode())
             name = str(data)
             if not name:
                 raise Exception(" NO name received")
-            connectionSocket.sendall("Autentication successful! You are in the game now".encode())
-            self.player_thread(connectionSocket,ip, "")
+            connectionSocket.sendall(json.dumps("Autentication successful! You are in the game now").encode())
+            new_player = Player(connectionSocket, ip, " ")
+            self.handle_queue(new_player)
+
+            
+
         except Exception as e:
             print(e)
             connectionSocket.sendall(str(e).encode())
@@ -147,27 +154,30 @@ class Server(object):
         try:
             #create an INET, STREAMing socket
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            #print ('Socket sucreated')
+            s.bind((server, port))
+            print ('Socket sucreated')
         except socket.error as err:
             print (f"socket creation failed with error {err}")
             
-        try:
-            s.bind((server, port))
-        except socket.error as e:
-            print(str(e))
 
         s.listen()
         print("waiting for connections, server started... ")
 
         while True:
-            clientSocket, addr = s.accept()
-            print("new incommming connection")
+            try:
+                clientSocket, addr = s.accept()
+                print("new incommming connection")
 
-            threading.Thread(target = self.authentication, args = (clientSocket, addr))
+                newClientThread = threading.Thread(target = self.authentication, args = (clientSocket, addr))
+                newClientThread.start()
+            except socket.error as err:
+                print("fail to accept incommming connection" + str(err))
 
 
 
 
 if __name__ == "__main__":
     s = Server()
-    threading.Thread(target= s.connection_thread)
+    thread = threading.Thread(target= s.connection_thread)
+    thread.start()
+    

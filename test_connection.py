@@ -5,8 +5,8 @@ import time as t
 class Network:
     def __init__(self, name):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = "172.105.98.201"
-        self.port = 5556
+        self.server = "10.106.166.81"
+        self.port = 2333
         self.addr = (self.server, self.port)
         self.name = name
         self.connect()
@@ -57,7 +57,7 @@ class Network:
         self.client.close()
 
 
-n = Network("Tech With Tim")
+n = Network("Daddy Vince")
 
 print("send 1")
 time = n.send({3:[]})
